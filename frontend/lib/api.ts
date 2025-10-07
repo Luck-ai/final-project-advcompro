@@ -1,4 +1,4 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://localhost:8000';
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
 let tokenExpiryHandler: (() => void) | null = null;
 export function setTokenExpiryHandler(handler: () => void) {
     tokenExpiryHandler = handler;
