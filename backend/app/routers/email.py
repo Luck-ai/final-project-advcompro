@@ -189,6 +189,53 @@ def send_verification_email_sync (email :str ,link :Optional [str ]=None ,full_n
             logger .exception ('SendGrid send failed: %s',e )
         return None 
 
+
+def send_password_reset_email_sync(email: str, link: Optional[str] = None, full_name: Optional[str] = None, api_key: Optional[str] = None):
+        if api_key is None:
+                api_key = get_sendgrid_api_key()
+
+        message = Mail(
+                from_email="luckyagarwal645@gmail.com",
+                to_emails=email,
+                subject="Reset your password",
+        )
+
+        year = datetime.utcnow().year
+        html_content = f"""
+        <!doctype html>
+        <html>
+            <head>
+                <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>Reset your password</title>
+            </head>
+            <body>
+                <div style="max-width:600px;margin:40px auto;padding:24px;background:#fff;border-radius:8px;">
+                    <h2 style="color:#d9480f;">Reset your password</h2>
+                    <p>Hi {full_name or ''},</p>
+                    <p>Click the button below to reset your password. If you didn't request this, ignore this email.</p>
+                    <p style="text-align:center;margin:24px 0;"><a href="{link or '#'}" style="background:#f97316;color:white;padding:12px 20px;border-radius:8px;text-decoration:none;">Reset password</a></p>
+                    <p>If the button doesn't work, copy and paste this link into your browser:</p>
+                    <p><a href="{link or '#'}">{link or ''}</a></p>
+                    <div style="margin-top:24px;color:#888;font-size:12px;">© {year} OptiStock</div>
+                </div>
+            </body>
+        </html>
+        """
+
+        try:
+                message.add_content(Content("text/html", html_content))
+        except Exception:
+                message.html_content = html_content
+
+        sg = SendGridAPIClient(api_key)
+        try:
+                response = sg.send(message)
+                return response
+        except Exception as e:
+                logger.exception('Failed to send password reset email: %s', e)
+                return None
+
 def build_batch_order_summary_html (full_name :str ,orders :list ,frontend_base :str =None )->str :
     """Build an HTML summary for multiple orders."""
     try :

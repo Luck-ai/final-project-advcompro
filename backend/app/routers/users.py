@@ -7,9 +7,12 @@ from ..database import get_db
 import hashlib 
 import logging 
 from ..security import create_access_token ,ACCESS_TOKEN_EXPIRE_MINUTES 
+from ..security import get_current_user
 from datetime import timedelta ,datetime ,timezone 
 import secrets 
 from ..routers .email import send_verification_email_sync 
+from ..routers.email import send_password_reset_email_sync
+import re
 
 router =APIRouter (prefix ="/users",tags =["users"])
 
@@ -18,8 +21,20 @@ def _hash_password (password :str )->str :
     return hashlib .sha256 (password .encode ('utf-8')).hexdigest ()
 
 
+def _validate_password_policy(password: str) -> None:
+    """Enforce: min 8 chars, at least one uppercase letter, and at least one special character."""
+    if len(password) < 8:
+        raise HTTPException(status_code=400, detail='Password must be at least 8 characters long')
+    if not re.search(r'[A-Z]', password):
+        raise HTTPException(status_code=400, detail='Password must contain at least one uppercase letter')
+    if not re.search(r'[\W_]', password):
+        raise HTTPException(status_code=400, detail='Password must contain at least one special character')
+
+
 @router .post ("/",response_model =schemas .UserOut )
 async def create_user (user :schemas .UserCreate ,db :AsyncSession =Depends (get_db )):
+    # validate password strength
+    _validate_password_policy(user.password)
     hashed =_hash_password (user .password )
 
     token =secrets .token_urlsafe (32 )
@@ -76,6 +91,47 @@ async def send_verification (request :schemas .VerifyRequest ,background_tasks :
     return {"status":"ok","detail":"Verification email queued"}
 
 
+
+@router.post('/forgot-password')
+async def forgot_password(request: schemas.ForgotPasswordRequest, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(models.User).where(models.User.email == request.email))
+    user = result.scalars().first()
+    if not user:
+        # don't reveal user existence
+        return {"status": "ok", "detail": "If that email exists, a password reset email was queued"}
+
+    # create reset token
+    user.password_reset_token = secrets.token_urlsafe(32)
+    user.password_reset_sent_at = datetime.now(timezone.utc)
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+
+    reset_link = f"http://localhost:3000/reset-password?token={user.password_reset_token}&email={user.email}"
+    background_tasks.add_task(send_password_reset_email_sync, user.email, reset_link, user.full_name)
+    return {"status": "ok", "detail": "Password reset queued"}
+
+
+@router.post('/reset-password')
+async def reset_password(request: schemas.ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(models.User).where(models.User.email == request.email))
+    user = result.scalars().first()
+    if not user:
+        raise HTTPException(status_code=404, detail='User not found')
+    if not user.password_reset_token or user.password_reset_token != request.token:
+        raise HTTPException(status_code=400, detail='Invalid or expired token')
+
+    # validate new password
+    _validate_password_policy(request.new_password)
+    # set new password
+    user.password_hash = _hash_password(request.new_password)
+    user.password_reset_token = None
+    user.password_reset_sent_at = None
+    db.add(user)
+    await db.commit()
+    return {"status": "ok", "detail": "Password has been reset"}
+
+
 @router .get ('/verify')
 async def verify_email (token :str ,email :str ,db :AsyncSession =Depends (get_db )):
     result =await db .execute (select (models .User ).where (models .User .email ==email ))
@@ -91,3 +147,27 @@ async def verify_email (token :str ,email :str ,db :AsyncSession =Depends (get_d
     db .add (user )
     await db .commit ()
     return {"status":"ok","detail":"Email verified"}
+
+
+
+@router.post('/change-password')
+async def change_password(request: schemas.ChangePasswordRequest, db: AsyncSession = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    # verify current password
+    hashed_current = _hash_password(request.current_password)
+    if current_user.password_hash != hashed_current:
+        raise HTTPException(status_code=400, detail='Current password is incorrect')
+    # validate new password
+    _validate_password_policy(request.new_password)
+    # set new password
+    current_user.password_hash = _hash_password(request.new_password)
+    db.add(current_user)
+    await db.commit()
+    return {'status': 'ok', 'detail': 'Password changed'}
+
+
+@router.delete('/')
+async def delete_account(db: AsyncSession = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    # delete the user record
+    await db.delete(current_user)
+    await db.commit()
+    return {'status': 'ok', 'detail': 'Account deleted'}

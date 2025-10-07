@@ -8,6 +8,7 @@ import { ToastProvider } from '@/lib/use-toast';
 import { AuthProvider } from '@/components/auth/auth-provider';
 import { Suspense } from "react";
 import "./globals.css";
+import AuthRouteWrapper from '@/components/AuthRouteWrapper';
 export const metadata: Metadata = {
     title: "OptiStock",
     description: "Professional inventory management system",
@@ -22,7 +23,9 @@ export default function RootLayout({ children, }: Readonly<{
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange={false} storageKey="stock-manager-theme">
             <AuthProvider>
               <ToastProvider>
-                {children}
+                <AuthRouteWrapper>
+                  {children}
+                </AuthRouteWrapper>
               </ToastProvider>
             </AuthProvider>
           </ThemeProvider>

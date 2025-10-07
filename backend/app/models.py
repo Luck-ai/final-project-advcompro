@@ -131,6 +131,9 @@ class User (Base ):
     is_verified =Column (Boolean ,nullable =False ,default =False )
     verification_token =Column (String (255 ),nullable =True ,index =True )
     verification_sent_at =Column (DateTime (timezone =True ),nullable =True )
+    # password reset fields
+    password_reset_token = Column(String(255), nullable=True, index=True)
+    password_reset_sent_at = Column(DateTime(timezone=True), nullable=True)
 
 
 

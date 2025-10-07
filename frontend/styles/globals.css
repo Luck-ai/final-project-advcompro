@@ -136,29 +136,7 @@
   }
 }
 
-/* Hide native password reveal/clear buttons so only our custom eye toggle is shown */
-input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear {
-  display: none !important;
-}
-
-/* Chrome/Edge/Safari - hide the native reveal button */
-input[type="password"]::-webkit-textfield-decoration-container,
-input[type="password"]::-webkit-inner-spin-button,
-input[type="password"]::-webkit-credentials-auto-fill-button,
-input[type="password"]::-webkit-clear-button {
-  display: none !important;
-}
-
-/* Firefox - hide the built-in reveal password button */
-input[type="password"]::-moz-password-reveal {
-  display: none !important;
-}
-
-/* Utility to ensure the custom toggle button doesn't overlap input content */
-.password-toggle-offset {
-  padding-right: 3rem; /* enough space for the absolute-positioned toggle */
-}
+/* Use browser-native password reveal/clear buttons — do not hide them. */
 
 /* Subtle hover effect for table rows to match card hover */
 .table-row-hover {

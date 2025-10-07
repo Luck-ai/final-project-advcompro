@@ -16,8 +16,7 @@ export function SignupForm() {
         password: "",
         confirmPassword: "",
     });
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // use browser-native password reveal; no custom toggle state needed
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
@@ -36,16 +35,31 @@ export function SignupForm() {
             setIsLoading(false);
             return;
         }
-        if (formData.password.length < 6) {
-            setError("Password must be at least 6 characters");
-            setIsLoading(false);
-            return;
-        }
+    // Enforce stronger password policy: min 8 chars, at least one uppercase, and one special char
+    const pwd = formData.password;
+    const uppercase = /[A-Z]/;
+    const special = /[^A-Za-z0-9]/;
+    if (pwd.length < 8) {
+      setError("Password must be at least 8 characters long");
+      setIsLoading(false);
+      return;
+    }
+    if (!uppercase.test(pwd)) {
+      setError("Password must contain at least one uppercase letter");
+      setIsLoading(false);
+      return;
+    }
+    if (!special.test(pwd)) {
+      setError("Password must contain at least one special character (e.g. !@#$%")
+      setIsLoading(false);
+      return;
+    }
         try {
-            const res = await apiFetch('/users/', {
-                method: 'POST',
-                body: JSON.stringify({ full_name: formData.name, email: formData.email, password: formData.password }),
-            });
+      const res = await apiFetch('/users/', ({
+        method: 'POST',
+        body: JSON.stringify({ full_name: formData.name, email: formData.email, password: formData.password }),
+        noAuth: true,
+      } as any));
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
                 setError(err.detail || err.message || "Account creation failed");
@@ -53,10 +67,11 @@ export function SignupForm() {
             }
             const created = await res.json();
             try {
-                await apiFetch('/users/send-verification', {
-                    method: 'POST',
-                    body: JSON.stringify({ email: formData.email }),
-                });
+        await apiFetch('/users/send-verification', ({
+          method: 'POST',
+          body: JSON.stringify({ email: formData.email }),
+          noAuth: true,
+        } as any));
                 localStorage.setItem("userEmail", created.email || formData.email);
                 router.push('/signup/verify-sent');
                 return;
@@ -89,21 +104,15 @@ export function SignupForm() {
 
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
-        <div className="relative">
-          <Input id="password" name="password" type={showPassword ? "text" : "password"} placeholder="Create a password" value={formData.password} onChange={handleChange} required/>
-          <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>
-            {showPassword ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
-          </Button>
+        <div>
+          <Input id="password" name="password" type="password" placeholder="Create a password" value={formData.password} onChange={handleChange} required/>
         </div>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="confirmPassword">Confirm Password</Label>
-        <div className="relative">
-          <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" value={formData.confirmPassword} onChange={handleChange} required/>
-          <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-            {showConfirmPassword ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
-          </Button>
+        <div>
+          <Input id="confirmPassword" name="confirmPassword" type="password" placeholder="Confirm your password" value={formData.confirmPassword} onChange={handleChange} required/>
         </div>
       </div>
 

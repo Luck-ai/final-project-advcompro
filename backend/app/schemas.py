@@ -175,6 +175,21 @@ class VerifyResponse (BaseModel ):
     detail :str 
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    email: str
+    new_password: str
+
+
 class Token (BaseModel ):
     access_token :str 
     token_type :str ="bearer"

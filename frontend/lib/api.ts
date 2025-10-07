@@ -4,9 +4,10 @@ export function setTokenExpiryHandler(handler: () => void) {
     tokenExpiryHandler = handler;
 }
 export async function apiFetch(path: string, options: RequestInit = {}) {
+    const noAuth = Boolean((options as any).noAuth);
     const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
     const headers: Record<string, string> = { ...(options.headers as Record<string, string> || {}) };
-    if (token) {
+    if (!noAuth && token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
     const body = (options as any).body;
@@ -15,7 +16,8 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
     }
     const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
 
-    if (res.status === 401 && tokenExpiryHandler && token) {
+    // Call token expiry handler for unauthorized responses only when this request used auth
+    if (res.status === 401 && tokenExpiryHandler && token && !noAuth) {
         tokenExpiryHandler();
     }
     return res;
