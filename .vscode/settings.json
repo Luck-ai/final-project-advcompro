@@ -1,0 +1,7 @@
+{
+  "python.terminal.useEnvFile": true,
+  "python.envFile": "${workspaceFolder}/backend/.env",
+  "terminal.integrated.env.windows": {
+    "DOTENV_PATH": "${workspaceFolder}/backend/.env"
+  }
+}

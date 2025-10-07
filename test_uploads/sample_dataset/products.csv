@@ -1,0 +1,27 @@
+name,sku,category,description,price,quantity,low_stock_threshold,supplier
+Sparkling Water,SPW-1001,Beverages,Carbonated spring water,0.99,120,20,FreshSource Co.
+Granola Bar,GLB-2002,Snacks,Oats and honey snack bar,1.25,200,30,HealthyBites Ltd.
+Whole Milk,WHM-3003,Dairy,Full-fat pasteurized milk (1L),1.79,80,15,DairyPure Farms
+Sourdough Loaf,SDL-4004,Bakery,Artisan sourdough bread,3.50,40,10,GoldenCrust Bakery
+Bag of Frozen Peas,FGP-5005,Frozen,Quick-frozen green peas (1kg),2.20,60,12,ArcticHarvest
+Iced Tea,ICT-1106,Beverages,Refreshing brewed iced tea (500ml),1.10,150,25,FreshSource Co.
+Orange Juice,ORJ-1107,Beverages,100% pure orange juice (1L),2.50,90,20,FreshSource Co.
+Potato Chips,PCH-2108,Snacks,Crispy salted potato chips,1.45,300,50,HealthyBites Ltd.
+Trail Mix,TMX-2109,Snacks,Nuts and dried fruit mix,2.75,120,25,HealthyBites Ltd.
+Yogurt Cup,YGT-3110,Dairy,Greek yogurt (150g),0.99,220,40,DairyPure Farms
+Cheddar Cheese,CHC-3111,Dairy,Sharp cheddar block (200g),3.20,70,15,DairyPure Farms
+Chocolate Croissant,CHC-4112,Bakery,Flaky croissant with chocolate,1.80,55,10,GoldenCrust Bakery
+Multigrain Bread,MGB-4113,Bakery,Whole multigrain sandwich loaf,2.10,65,12,GoldenCrust Bakery
+Frozen Pizza,FPZ-5114,Frozen,Stone-baked frozen pizza,4.50,80,15,ArcticHarvest
+Ice Cream Tub,ICT-5115,Frozen,Vanilla ice cream (500ml),3.99,95,20,ArcticHarvest
+Canned Beans,CBN-6106,Pantry,Hearty canned beans (400g),0.89,250,40,FreshSource Co.
+Pasta Penne,PPT-6107,Pantry,Dried penne pasta (500g),1.20,180,30,HealthyBites Ltd.
+Dish Soap,DSH-7108,Household,Concentrated dishwashing liquid,2.40,140,20,FreshSource Co.
+Toothpaste,TPA-8109,Personal Care,Fluoride toothpaste (100ml),1.75,160,25,HealthyBites Ltd.
+Frozen Mixed Berries,FMB-5120,Frozen,Assorted frozen berries (300g),3.10,75,15,ArcticHarvest
+Cooking Oil,COI-6110,Pantry,Vegetable cooking oil (1L),2.99,130,25,FreshSource Co.
+Smartphone Charger,SMC-9101,Electronics,USB-C fast charger,9.99,45,5,FreshSource Co.
+Earbuds,EBD-9102,Electronics,Wireless earbuds with charging case,19.99,30,5,HealthyBites Ltd.
+Hand Soap,HDS-7109,Household,Liquid hand soap (250ml),1.99,170,30,FreshSource Co.
+Facial Cleanser,FCL-8110,Personal Care,Gentle facial cleanser (150ml),4.25,95,20,HealthyBites Ltd.
+

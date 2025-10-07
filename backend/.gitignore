@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+venv/
+.env
+routes/__pycache__/
+routes/*.pyc
+utils/__pycache__/
+utils/*.pyc
+alembic/
+alembic.ini
+
