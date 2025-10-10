@@ -1,4 +1,4 @@
-from fastapi import APIRouter ,HTTPException 
+from fastapi import APIRouter, HTTPException 
 from starlette .concurrency import run_in_threadpool 
 import logging 
 from python_http_client .exceptions import BadRequestsError 
@@ -10,8 +10,8 @@ import os
 from typing import Optional 
 from datetime import datetime 
 
-router =APIRouter (prefix ="/email",tags =["email"])
-
+# router
+router =APIRouter (prefix ="/email",tags =["email"] )
 
 def fmt_money (val :float )->str :
     try :
@@ -26,6 +26,12 @@ def get_sendgrid_api_key ():
         raise HTTPException (status_code =500 ,detail ="SendGrid API key not set")
     return api_key 
 
+def get_email_sender():
+    email =os .getenv ("EMAIL")
+    if not email :
+        raise HTTPException (status_code =500 ,detail ="Email sender not set")
+    return email
+
 def send_verification_email_sync (email :str ,link :Optional [str ]=None ,full_name :Optional [str ]=None ,api_key :Optional [str ]=None ):
 
     if api_key is None :
@@ -34,7 +40,7 @@ def send_verification_email_sync (email :str ,link :Optional [str ]=None ,full_n
     full_name =full_name or ''
 
     message =Mail (
-    from_email ="luckyagarwal645@gmail.com",
+    from_email =get_email_sender (),
     to_emails =email ,
     subject ="Please verify your email",
     )
@@ -195,7 +201,7 @@ def send_password_reset_email_sync(email: str, link: Optional[str] = None, full_
                 api_key = get_sendgrid_api_key()
 
         message = Mail(
-                from_email="luckyagarwal645@gmail.com",
+                from_email=get_email_sender(),
                 to_emails=email,
                 subject="Reset your password",
         )
@@ -349,7 +355,7 @@ def send_batch_order_summary_sync (email :str ,orders :list ,full_name :Optional
     html_content =build_batch_order_summary_html (full_name ,orders ,frontend_base )
 
     message =Mail (
-    from_email ="luckyagarwal645@gmail.com",
+    from_email =get_email_sender (),
     to_emails =email ,
     subject =f"Order Summary - {len (orders )} items",
     )
